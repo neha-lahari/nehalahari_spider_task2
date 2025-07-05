@@ -1,0 +1,80 @@
+.activity {
+    padding: 32px 8px;
+    margin-left: 20px;
+    font-family: sans-serif;
+    color: #2ECC40;
+    background: #23272A;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.activity h2 {
+    color: #2ECC40;
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 32px 0;
+    letter-spacing: 1px;
+}
+
+.activities {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activities li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #262a2e;
+    margin-bottom: 13px;
+    padding: 12px 19px;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px #0002;
+    color: #EEEEEE;
+    font-size: 17px;
+    transition: background 0.14s;
+}
+
+.activities li:hover {
+    background: #27332e;
+}
+
+.activities div {
+    flex: 1;
+    overflow-wrap: anywhere;
+}
+
+.activities button {
+    background: none;
+    border: none;
+    color: #ff4d4d;
+    font-size: 22px;
+    cursor: pointer;
+    margin-left: 16px;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.13s, color 0.13s;
+}
+
+.activities button:hover {
+    background: #ff4d4d22;
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    .activities li {
+        font-size: 16px;
+        padding: 11px 8px;
+    }
+
+    .activities button {
+        font-size: 18px;
+        width: 27px;
+        height: 27px;
+    }
+}

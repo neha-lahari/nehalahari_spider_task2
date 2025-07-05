@@ -1,0 +1,134 @@
+.friends-page {
+    background-color: #23272A;
+    color: #EEEEEE;
+    padding: 18px 13px;
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    box-sizing: border-box;
+}
+
+.heading {
+    font-size: 24px;
+    color: #2ECC40;
+    font-weight: 700;
+    margin-bottom: 11px;
+}
+
+.friends-search {
+    padding: 6px 11px;
+    width: 55%;
+    max-width: 260px;
+    border: 1px solid #2ECC40;
+    background-color: #25292d;
+    color: #EEEEEE;
+    border-radius: 7px;
+    font-size: 16px;
+    margin-right: 11px;
+    outline: none;
+}
+
+.friends-search:focus {
+    border: 2px solid #2ECC40;
+    background: #23272A;
+}
+
+.search-btn {
+    padding: 6px 16px;
+    background-color: #2ECC40;
+    border: none;
+    color: #23272A;
+    border-radius: 7px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    background: #27b63f;
+    color: #EEEEEE;
+}
+
+.friend-result {
+    border-bottom: 1px solid #2ECC4030;
+    padding: 9px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    background: #25292d;
+    border-radius: 7px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 4px #23272a12;
+}
+
+.friend-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.friend-action-btn {
+    padding: 5px 12px;
+    margin-left: 5px;
+    border: 1px solid #2ECC40;
+    background-color: transparent;
+    color: #2ECC40;
+    border-radius: 7px;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.friend-action-btn:hover {
+    background: #2ECC40;
+    color: #23272A;
+}
+
+.accept-btn {
+    color: #0f0;
+    border-color: #0f0;
+}
+
+.accept-btn:hover {
+    background: #0f0;
+    color: #23272A;
+}
+
+.reject-btn {
+    color: #ff6565;
+    border-color: #ff6565;
+}
+
+.reject-btn:hover {
+    background: #ff6565;
+    color: #23272A;
+}
+
+.unfriend-btn {
+    color: #f55;
+    border-color: #f55;
+}
+
+.unfriend-btn:hover {
+    background: #f55;
+    color: #23272A;
+}
+
+.section {
+    margin-top: 18px;
+    border-top: 2px solid #2ECC4060;
+    padding-top: 18px;
+}
+
+@media (max-width: 700px) {
+    .friends-search{
+        width: 100%;
+        margin-bottom: 11px;
+    }
+
+    .friend-result {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

@@ -1,0 +1,109 @@
+.add-expense-page {
+    background-color: #23272A;
+    color: #EEEEEE;
+    min-height: 100vh;
+    padding: 50px;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    box-sizing: border-box;
+}
+
+.add-expense-container {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 24px 16px 40px 16px;
+    background: transparent;
+    border-radius: 12px;
+}
+
+.add-expense-page h2 {
+    font-size: 22px;
+    color: #2ECC40;
+    font-weight: 700;
+    margin-bottom: 21px;
+    letter-spacing: 0.08px;
+}
+
+.add-expense-page label {
+    display: block;
+    margin-top: 14px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #2ECC40;
+    letter-spacing: 0.16px;
+}
+
+.add-expense-page input{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px 14px;
+    font-size: 16px;
+    background-color: #25292d;
+    border: 1.2px solid #2ECC40;
+    color: #EEEEEE;
+    border-radius: 8px;
+    margin-bottom: 1px;
+    transition: border 0.15s, background 0.15s;
+    outline: none;
+}
+
+.add-expense-page input:focus {
+    border: 2px solid #2ECC40;
+    background: #23272A;
+}
+
+.add-expense-page input::placeholder {
+    color: #2ECC4080;
+    opacity: 1;
+}
+
+.add-expense-page button {
+    margin-top: 19px;
+    padding: 9px 20px;
+    font-size: 16px;
+    background-color: #2ECC40;
+    color: #23272A;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 2px 8px #2ecc4030;
+}
+
+.add-expense-page button:hover {
+    background-color: #27b63f;
+    color: #EEEEEE;
+}
+
+.add-expense-page button+button {
+    margin-left: 11px;
+    background-color: transparent;
+    color: #2ECC40;
+    border: 1.2px solid #2ECC40;
+    box-shadow: none;
+}
+
+.add-expense-page button+button:hover {
+    background: #2ECC4014;
+    color: #23272A;
+    border-color: #27b63f;
+}
+
+.add-expense-page input[type="radio"] {
+    transform: scale(1.18);
+    accent-color: #2ECC40;
+}
+
+@media (max-width: 700px) {
+    .add-expense-page {
+        padding: 16px 6px;
+    }
+
+    .add-expense-container {
+        max-width: 97vw;
+        padding: 19px 3px 27px 3px;
+    }
+
+    .add-expense-page h2 {
+        font-size: 19px;
+    }
+}

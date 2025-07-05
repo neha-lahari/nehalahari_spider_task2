@@ -1,0 +1,172 @@
+.create-group-page {
+    padding: 32px 8px;
+    background-color: #23272A;
+    color: #EEEEEE;
+    min-height: 100vh;
+    font-family: sans-serif;
+    box-sizing: border-box;
+}
+
+.btns {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.back-btn,
+.done-btn {
+    background: none;
+    color: #2ECC40;
+    font-size: 24px;
+    border: 1px solid #2ECC40;
+    border-radius: 6px;
+    padding: 4px 11px;
+    cursor: pointer;
+}
+
+.back-btn:hover,
+.done-btn:hover {
+    background: #2ECC40;
+    color: #23272A;
+}
+
+.form label {
+    display: block;
+    margin: 24px 0 8px 0;
+    font-size: 16px;
+    color: #bdbdbd;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 11px;
+    font-size: 16px;
+    margin-top: 15px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    background-color: #25292d;
+    color: #EEEEEE;
+    box-sizing: border-box;
+    margin-bottom: 19px;
+    transition: border 0.12s;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border: 2px solid #2ECC40;
+}
+
+.checkbox-list {
+    margin: 19px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.checkbox-item {
+    background-color: #25292d;
+    border: 1px solid #2ECC40;
+    padding: 8px 16px;
+    border-radius: 6px;
+    color: #EEEEEE;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-item input[type="checkbox"] {
+    accent-color: #2ECC40;
+    margin-right: 10px;
+}
+
+.add-friend-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.add-friend-row button {
+    font-size: 17px;
+    background-color: #2ECC40;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    color: #23272A;
+    font-weight: 600;
+    transition: background 0.13s, color 0.13s;
+}
+
+.add-friend-row button:hover {
+    background: #27b63f;
+    color: #EEEEEE;
+}
+
+.friend-chips {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.chip {
+    background-color: #25292d;
+    border: 1px solid #2ECC40;
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 15px;
+    color: #EEEEEE;
+}
+
+.chip button {
+    background: none;
+    border: none;
+    color: #2ECC40;
+    cursor: pointer;
+    font-size: 17px;
+    padding: 0 5px;
+    border-radius: 50%;
+    transition: background 0.13s, color 0.13s;
+}
+
+.chip button:hover {
+    background: #2ECC40;
+    color: #23272A;
+}
+
+.options {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    background-color: #25292d;
+    border: 1px solid #2ECC40;
+    color: #EEEEEE;
+    padding: 8px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn.active,
+.btn:hover {
+    background-color: #2ECC40;
+    color: #23272A;
+}
+
+.hint {
+    font-size: 14px;
+    margin-top: 18px;
+    color: #bdbdbd;
+    opacity: 0.89;
+}

@@ -1,0 +1,127 @@
+.groups-page {
+    min-height: 100vh;
+    margin-left: 30px;
+    padding: 32px 8px;
+    background: #23272A;
+    color: #EEEEEE;
+    font-family: sans-serif;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.heading {
+    font-size: 23px;
+    font-weight: 700;
+    color: #2ECC40;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.create-group-btn {
+    font-size: 17px;
+    padding: 6px 18px;
+    border: 1px solid #2ECC40;
+    background: none;
+    color: #2ECC40;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.14s, color 0.14s;
+}
+
+.create-group-btn:hover {
+    background: #2ECC40;
+    color: #23272A;
+}
+
+.group-item {
+    border-bottom: 1px solid #2ECC40;
+    padding: 8px 0 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.14s;
+}
+
+.group-item:hover {
+    background: #262a2e;
+}
+
+.group-name {
+    font-weight: 600;
+    font-size: 17px;
+    color: #EEEEEE;
+}
+
+.btns {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.view-btn {
+    background: none;
+    color: #2ECC40;
+    border: 1px solid #2ECC40;
+    padding: 6px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 16px;
+    transition: background 0.13s, color 0.13s;
+}
+
+.view-btn:hover {
+    background: #2ECC40;
+    color: #23272A;
+}
+
+.delete-btn {
+    background: none;
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+    padding: 6px 15px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 16px;
+    margin-left: 8px;
+    box-sizing: border-box;
+    display: inline-block;
+}
+
+.delete-btn:hover {
+    background: #ff4d4d;
+    color: #fff;
+    border-color: #d92121;
+}
+
+.create-btn {
+    background: #2ECC40;
+    color: #23272A;
+    padding: 9px 18px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: background 0.12s, color 0.12s;
+}
+
+.create-btn:hover {
+    background: #27b63f;
+    color: #EEEEEE;
+}
+
+@media (max-width: 700px) {
+    .header {
+        flex-direction: column;
+        gap: 16px;
+    }
+}

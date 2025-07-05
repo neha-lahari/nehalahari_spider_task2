@@ -1,0 +1,116 @@
+.account-container {
+    margin-left: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: #23272A;
+    color: #EEEEEE;
+    font-family: sans-serif;
+    box-sizing: border-box;
+}
+
+.account-title {
+    font-size: 20px;
+    margin: 0 0 19px 0;
+    color: #2ECC40;
+    font-weight: 700;
+    padding: 32px 0 8px 32px;
+}
+
+.section-title {
+    margin: 32px 0 8px 32px;
+    font-size: 16px;
+    color: #bdbdbd;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.sub-title {
+    padding: 11px 0 11px 32px;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: inherit;
+    transition: background 0.12s;
+    border-radius: 0;
+}
+
+.sub-title:hover {
+    background: #222c22;
+}
+
+.sub-title h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 3px 0;
+    color: #EEEEEE;
+}
+
+.sub-title p {
+    margin: 0;
+    font-size: 16px;
+    color: #bdbdbd;
+}
+
+.edit {
+    margin-left: auto;
+    margin-right: 32px;
+    font-size: 17px;
+    color: #2ECC40;
+    background: none;
+    border: 1px solid #2ECC40;
+    border-radius: 4px;
+    padding: 0.25em 0.6em;
+    cursor: pointer;
+    opacity: 0.85;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit:hover {
+    background: #2ECC40;
+    color: #23272A;
+    border-color: #2ECC40;
+    opacity: 1;
+}
+
+.logout {
+    display: block;
+    width: calc(100% - 32px);
+    margin: 40px 0 0 32px;
+    padding: 11px 0;
+    background: none;
+    border: 1px solid #2ECC40;
+    color: #2ECC40;
+    border-radius: 3px;
+    font-weight: 500;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.logout:hover {
+    background: #2ECC40;
+    color: #23272A;
+}
+
+@media (max-width: 800px) {
+    .account-container {
+        margin-left: 0;
+    }
+
+    .account-title,
+    .section-title,
+    .sub-title,
+    .logout {
+        padding-left: 16px !important;
+        margin-left: 0 !important;
+    }
+
+    .logout {
+        width: calc(100% - 16px);
+    }
+}
