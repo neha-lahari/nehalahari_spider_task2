@@ -1,7 +1,8 @@
 const Group = require("../models/groups");
-const User = require("../models/user");
+const User = require("../models/User");
 const Activity = require("../models/activity");
-//to create new
+
+// Create new group
 exports.createGroup = async (req, res) => {
     const { name, members = [] } = req.body;
     const user = req.user.userId;
@@ -16,6 +17,7 @@ exports.createGroup = async (req, res) => {
         if (notFriends.length > 0) {
             return res.status(400).json({ message: "Only friends can be added", notFriends });
         }
+
         const selectedUsers = await User.find({ username: { $in: members } });
         const memberIds = selectedUsers.map(u => u._id);
         const group = new Group({
@@ -26,7 +28,7 @@ exports.createGroup = async (req, res) => {
 
         await group.save();
 
-        await Activity.create({//grp created activity
+        await Activity.create({
             user: req.user.userId,
             group: group._id,
             groupName: group.name,
@@ -43,7 +45,80 @@ exports.createGroup = async (req, res) => {
         res.status(500).json({ message: "Error", error: err.message });
     }
 };
-//remove member
+
+// Add members to existing group
+exports.addMembers = async (req, res) => {
+    const groupId = req.params.id;
+    const { members = [] } = req.body;
+    const user = req.user.userId;
+
+    try {
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return res.status(404).json({ message: "Group not found" });
+        }
+
+        // Only group creator can add members
+        if (group.createdBy.toString() !== user) {
+            return res.status(403).json({ message: "Only group creator can add members" });
+        }
+
+        // Get user's friends
+        const me = await User.findById(user).populate('friends', 'username');
+        if (!me) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const myFriendUsernames = me.friends.map(f => f.username);
+        const notFriends = members.filter(m => !myFriendUsernames.includes(m));
+        if (notFriends.length > 0) {
+            return res.status(400).json({ message: "Only friends can be added", notFriends });
+        }
+
+        // Get user IDs of members to add
+        const selectedUsers = await User.find({ username: { $in: members } });
+        const memberIds = selectedUsers.map(u => u._id);
+
+        // Filter out members already in group
+        const existingMemberIds = group.members.map(m => m.toString());
+        const newMemberIds = memberIds.filter(id => !existingMemberIds.includes(id.toString()));
+
+        if (newMemberIds.length === 0) {
+            return res.status(400).json({ message: "All selected members are already in the group" });
+        }
+
+        // Add new members to group
+        group.members = [...group.members, ...newMemberIds];
+        await group.save();
+
+        // Add group to new members' groups list
+        await User.updateMany(
+            { _id: { $in: newMemberIds } },
+            { $push: { groups: group._id } }
+        );
+
+        // Create activity for each new member added
+        for (let memberId of newMemberIds) {
+            Activity.create({
+                user: req.user.userId,
+                group: group._id,
+                groupName: group.name,
+                type: "member_added",
+                addedMember: memberId,
+            }).catch(err => console.error("Activity logging failed:", err));
+        }
+
+        // Populate members for response
+        await group.populate("members", "username");
+        await group.populate("createdBy", "username");
+
+        res.json({ message: "Members added successfully", group });
+    } catch (err) {
+        res.status(500).json({ message: "Error adding members", error: err.message });
+    }
+};
+
+// Remove member
 exports.removeMem = async (req, res) => {
     const groupId = req.params.id;
     const { memberId } = req.body;
@@ -52,37 +127,53 @@ exports.removeMem = async (req, res) => {
     try {
         const group = await Group.findById(groupId);
         if (!group) {
-            return res.status(404).json({ message: "no such group exists" });
+            return res.status(404).json({ message: "Group not found" });
         }
+
         if (group.createdBy.toString() !== user) {
-            return res.status(403).json({ message: "not allowed" });
+            return res.status(403).json({ message: "Not allowed" });
         }
-        group.members = group.members.filter(m => m.toString() != memberId);
+
+        group.members = group.members.filter(m => m.toString() !== memberId);
         await group.save();
 
         await User.findByIdAndUpdate(memberId, {
             $pull: { groups: groupId }
         });
 
-        res.json({ message: "removed", group });
+        Activity.create({
+            user: req.user.userId,
+            group: group._id,
+            groupName: group.name,
+            type: "member_removed",
+            removedMember: memberId,
+        }).catch(err => console.error("Activity logging failed:", err));
+
+        await group.populate("members", "username");
+        await group.populate("createdBy", "username");
+
+        res.json({ message: "Member removed", group });
     } catch (err) {
-        res.status(500).json({ message: "error", error: err.message });
+        res.status(500).json({ message: "Error", error: err.message });
     }
 };
-//delete grp
+
+// Delete group
 exports.deleteGroup = async (req, res) => {
     const groupId = req.params.id;
     const user = req.user.userId;
+
     try {
         const group = await Group.findById(groupId);
         if (!group) {
-            return res.status(404).json({ message: "no such group exists" });
-        }
-        if (group.createdBy != user) {
-            return res.status(403).json({ message: "not allowed" });
+            return res.status(404).json({ message: "Group not found" });
         }
 
-        await Activity.create({//grp deleted activity
+        if (group.createdBy.toString() !== user) {
+            return res.status(403).json({ message: "Not allowed" });
+        }
+
+        await Activity.create({
             user: req.user.userId,
             group: groupId,
             groupName: group.name,
@@ -96,12 +187,13 @@ exports.deleteGroup = async (req, res) => {
 
         await Group.findByIdAndDelete(groupId);
 
-        res.json({ message: "deleted" });
+        res.json({ message: "Group deleted" });
     } catch (err) {
-        res.status(500).json({ message: "error", error: err.message });
+        res.status(500).json({ message: "Error", error: err.message });
     }
 };
-//to show existing grpss
+
+// Show existing groups
 exports.MyGroups = async (req, res) => {
     try {
         const me = await User.findById(req.user.userId).populate({
@@ -111,9 +203,11 @@ exports.MyGroups = async (req, res) => {
                 select: "_id username",
             },
         });
+
         if (!me) {
             return res.status(404).json({ message: "User not found" });
         }
+
         const groupsWithCreator = me.groups.map(group => ({
             _id: group._id,
             name: group.name,
@@ -125,9 +219,11 @@ exports.MyGroups = async (req, res) => {
         res.status(500).json({ message: "Error fetching groups", error: err.message });
     }
 };
-//to show group details
+
+// Show group details by ID
 exports.getGroupById = async (req, res) => {
     const groupId = req.params.id;
+
     try {
         const group = await Group.findById(groupId)
             .populate("members", "username")
@@ -142,7 +238,8 @@ exports.getGroupById = async (req, res) => {
         res.status(500).json({ message: "Error fetching group", error: err.message });
     }
 };
-//to get the details of grp
+
+// Get group details
 exports.getGroupDetails = async (req, res) => {
     const groupId = req.params.id;
 
@@ -151,6 +248,7 @@ exports.getGroupDetails = async (req, res) => {
         if (!group) {
             return res.status(404).json({ message: "Group not found" });
         }
+
         res.json({
             _id: group._id,
             name: group.name,

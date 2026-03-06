@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/createGroup.css";
+
 
 export default function CreateGroup() {
     const [groupName, setGroupName] = useState("");
     const [groupType, setGroupType] = useState("");
-    const [friendsList, setFriendsList] = useState([]);
-    const [selectedFriends, setSelectedFriends] = useState([]);
+    const [friendsList, setFriendsList] = useState([]);// all friends
+    const [selectedFriends, setSelectedFriends] = useState([]);// usernames of selected friends
     const navigate = useNavigate();
     const token = localStorage.getItem("token");
 
@@ -78,51 +78,105 @@ export default function CreateGroup() {
     };
 
     return (
-        <div className="create-group-page">
-            <div className="btns">
-                <button onClick={() => navigate(-1)} className="back-btn">✘</button>
-                <h2>Create a Group</h2>
-                <button onClick={handleSubmit} className="done-btn">✔</button>
+        <div className="max-w-3xl mx-auto text-slate-200">
+
+            {/* Top Bar */}
+            <div className="flex items-center justify-between mb-10">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="text-slate-400 hover:text-green-300 transition text-sm"
+                >
+                    ← Back
+                </button>
+
+                <h2 className="text-xl font-semibold text-green-300">
+                    Create New Group
+                </h2>
+
+                <button
+                    onClick={handleSubmit}
+                    className="px-4 py-1.5 rounded-md bg-green-500/20 border border-green-400/40 text-green-300 text-sm hover:bg-green-500/30 transition"
+                >
+                    Done
+                </button>
             </div>
-            <div className="form">
-                <div>Group Name</div>
-                <input
-                    type="text" value={groupName}
-                    onChange={(e) => setGroupName(e.target.value)} />
 
-                <div>Select Friends</div>
-                <div className="checkbox-list">
-                    {friendsList.map(friend => (
-                        <label key={friend._id} className="checkbox-item">
-                            <input
-                                type="checkbox"
-                                checked={selectedFriends.includes(friend.username)}
-                                onChange={() => toggleFriend(friend.username)} />
-                            {friend.username}
-                        </label>
-                    ))}
+            {/* Card */}
+            <div className="bg-slate-800/60 border border-green-900/30 rounded-2xl p-8 space-y-8">
+
+                {/* Group Name */}
+                <div>
+                    <label className="block text-sm text-slate-400 mb-2">
+                        Group Name
+                    </label>
+                    <input
+                        type="text"
+                        value={groupName}
+                        onChange={(e) => setGroupName(e.target.value)}
+                        className="w-full bg-slate-900 border border-green-900/40 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-green-400 transition"
+                        placeholder="Trip to Goa"
+                    />
                 </div>
 
-                <div>Type</div>
-                <div className="options">
-                    {["Travel", "Home", "Couple", "Other"].map((type) => {
-                        let btnClass = "btn";
-                        if (groupType === type) {
-                            btnClass += " active";
-                        }
-                        return (
-                            <button
-                                key={type}
-                                className={btnClass}
-                                onClick={() => setGroupType(type)}>
-                                {type}
-                            </button>
-                        );
-                    })}
+                {/* Friends Selection */}
+                <div>
+                    <label className="block text-sm text-slate-400 mb-3">
+                        Select Friends
+                    </label>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        {friendsList.map((friend) => {
+                            const selected = selectedFriends.includes(friend.username);
+                            return (
+                                <button
+                                    key={friend._id}
+                                    type="button"
+                                    onClick={() => toggleFriend(friend.username)}
+                                    className={`text-sm px-4 py-2 rounded-lg border transition
+                                    ${selected
+                                            ? "bg-green-500/20 border-green-400 text-green-300"
+                                            : "bg-slate-900 border-slate-700 text-slate-400 hover:border-green-400/40"
+                                        }`}
+                                >
+                                    {friend.username}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
-                <p className="hint">
-                    Splitwise will remind friends to join, add expenses, and settle up.
+
+                {/* Group Type */}
+                <div>
+                    <label className="block text-sm text-slate-400 mb-3">
+                        Group Type
+                    </label>
+
+                    <div className="flex flex-wrap gap-3">
+                        {["Travel", "Home", "Couple", "Other"].map((type) => {
+                            const active = groupType === type;
+                            return (
+                                <button
+                                    key={type}
+                                    type="button"
+                                    onClick={() => setGroupType(type)}
+                                    className={`px-4 py-2 text-sm rounded-lg border transition
+                                    ${active
+                                            ? "bg-green-500/20 border-green-400 text-green-300"
+                                            : "bg-slate-900 border-slate-700 text-slate-400 hover:border-green-400/40"
+                                        }`}
+                                >
+                                    {type}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Hint */}
+                <p className="text-xs text-slate-500">
+                    Members will be able to add expenses and settle balances once the group is created.
                 </p>
+
             </div>
         </div>
     );

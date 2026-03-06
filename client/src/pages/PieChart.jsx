@@ -1,153 +1,224 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, } from "recharts";
-import "../styles/piechart.css"
+import {
+    PieChart,
+    Pie,
+    Cell,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+} from "recharts";
+
 const COLORS = [
-    "#00e681", "#007a4d", "#1affbc", "#33ff99",
-    "#009966", "#00ffaa", "#009933", "#33cc99"
+    "#22c55e", "#16a34a", "#4ade80", "#15803d",
+    "#34d399", "#059669", "#10b981", "#065f46",
 ];
 
 function GroupPieChart() {
     const { groupId } = useParams();
     const [categoryData, setCategoryData] = useState([]);
+    const [paidData, setPaidData] = useState([]);
     const [expenses, setExpenses] = useState([]);
-    const [balances, setBalances] = useState([]);
 
-    const fetchCategoryData = useCallback(async () => {
-        try {
-            const res = await fetch(`http://localhost:5000/api/group/${groupId}/balances`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
-            const data = await res.json();
+    useEffect(() => {
+        const fetchAllData = async () => {
+            try {
+                const token = localStorage.getItem("token");
 
-            if (data.categoryExpenses) {
-                const chartData = [];
-                for (const category in data.categoryExpenses) {
-                    chartData.push({
-                        name: category,
-                        value: data.categoryExpenses[category],
+                const groupRes = await fetch(
+                    `http://localhost:5000/api/groups/${groupId}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const groupData = await groupRes.json();
+                const members = groupData.group?.members || [];
+
+                const memberMap = {};
+                members.forEach((m) => {
+                    memberMap[m._id] = m.username;
+                });
+
+                const expRes = await fetch(
+                    `http://localhost:5000/api/expenses/group/${groupId}`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                const expData = await expRes.json();
+                const expensesList = expData.expenses || [];
+                setExpenses(expensesList);
+
+                // CATEGORY DATA
+                const categoryMap = {};
+                expensesList.forEach((exp) => {
+                    categoryMap[exp.category] =
+                        (categoryMap[exp.category] || 0) + exp.amount;
+                });
+
+                setCategoryData(
+                    Object.keys(categoryMap).map((cat) => ({
+                        name: cat,
+                        value: categoryMap[cat],
+                    }))
+                );
+
+                // PAID DATA
+                const paidMap = {};
+                expensesList.forEach((exp) => {
+                    exp.participants.forEach((p) => {
+                        if (p.paid > 0) {
+                            const username = memberMap[p.user];
+                            if (username) {
+                                paidMap[username] =
+                                    (paidMap[username] || 0) + p.paid;
+                            }
+                        }
                     });
-                }
-                setCategoryData(chartData);
-            }
-            // "Who owes whom"
-            setBalances(data.balances || []);
-        } catch (err) {
-            console.error("Error fetching chart data:", err);
-        }
-    }, [groupId]);
+                });
 
-    const fetchExpenses = useCallback(async () => {
-        try {
-            const res = await fetch(`http://localhost:5000/api/expenses/group/${groupId}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
-            const data = await res.json();
-            setExpenses(data.expenses || []);
-        } catch (err) {
-            console.error("Error fetching expenses:", err);
-        }
+                setPaidData(
+                    Object.keys(paidMap).map((user) => ({
+                        name: user,
+                        value: paidMap[user],
+                    }))
+                );
+
+            } catch (err) {
+                console.error("Error fetching chart data:", err);
+            }
+        };
+
+        fetchAllData();
     }, [groupId]);
 
     const handleDeleteExpense = async (expenseId) => {
         if (!window.confirm("Delete this expense?")) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/expenses/${expenseId}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
+            const res = await fetch(
+                `http://localhost:5000/api/expenses/${expenseId}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
 
-            const data = await res.json();
             if (!res.ok) {
-                alert(data.message || "Error deleting expense");
+                alert("Error deleting expense");
                 return;
             }
 
-            alert("Expense deleted");
-            fetchCategoryData();
-            fetchExpenses();
+            // update UI without reload
+            setExpenses((prev) =>
+                prev.filter((exp) => exp._id !== expenseId)
+            );
+
         } catch (err) {
             console.error("Error deleting expense:", err);
         }
     };
 
-    useEffect(() => {
-        fetchCategoryData();
-        fetchExpenses();
-    }, [groupId, fetchCategoryData, fetchExpenses]);
-
     return (
-        <div className="piechart-container">
-            <h3 className="title">Expenses by Category</h3>
+        <div className="space-y-10">
+
+            <h3 className="text-xl font-semibold text-green-400">
+                Expenses Overview
+            </h3>
 
             {categoryData.length === 0 ? (
-                <p>No expenses to show.</p>
+                <div className="text-slate-400">
+                    No expenses to show.
+                </div>
             ) : (
                 <>
-                    <div className="piecharts">
-                        <ResponsiveContainer>
-                            <PieChart>
-                                <Pie
-                                    data={categoryData}
-                                    dataKey="value"
-                                    nameKey="name"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={90}
-                                    label={({ name, percent }) =>
-                                        `${name} (${(percent * 100).toFixed(0)}%)`
-                                    }
-                                >
-                                    {categoryData.map((_, index) => (
-                                        <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend
-                                    layout="horizontal"
-                                    verticalAlign="bottom"
-                                    align="center"
-                                    wrapperStyle={{ color: "#00e681", fontSize: "0.9rem" }}
-                                />
-                            </PieChart>
-                        </ResponsiveContainer>
+                    {/* CHARTS */}
+                    <div className="grid md:grid-cols-2 gap-10">
+
+                        {/* CATEGORY PIE */}
+                        <div className="bg-slate-900 p-6 rounded-2xl shadow-lg">
+                            <h4 className="text-slate-300 mb-4 font-medium">
+                                By Category
+                            </h4>
+
+                            <ResponsiveContainer width="100%" height={260}>
+                                <PieChart>
+                                    <Pie
+                                        data={categoryData}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        outerRadius={90}
+                                        label
+                                    >
+                                        {categoryData.map((_, index) => (
+                                            <Cell
+                                                key={index}
+                                                fill={COLORS[index % COLORS.length]}
+                                            />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip formatter={(value) => `₹${value}`} />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        {/* PAID BY */}
+                        <div className="bg-slate-900 p-6 rounded-2xl shadow-lg">
+                            <h4 className="text-slate-300 mb-4 font-medium">
+                                Paid By
+                            </h4>
+
+                            <ResponsiveContainer width="100%" height={260}>
+                                <PieChart>
+                                    <Pie
+                                        data={paidData}
+                                        dataKey="value"
+                                        nameKey="name"
+                                        innerRadius={50}
+                                        outerRadius={90}
+                                        label
+                                    >
+                                        {paidData.map((_, index) => (
+                                            <Cell
+                                                key={index}
+                                                fill={COLORS[index % COLORS.length]}
+                                            />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip formatter={(value) => `₹${value}`} />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
 
-                    <div className="expense-list">
+                    {/* EXPENSE LIST */}
+                    <div className="bg-slate-800 p-6 rounded-2xl shadow-md space-y-4">
+                        <h4 className="text-slate-300 font-medium">
+                            All Expenses
+                        </h4>
+
                         {expenses.map((ex) => (
-                            <div key={ex._id} className="expense-item">
-                                <span>{ex.category} - ₹{ex.amount}</span>
+                            <div
+                                key={ex._id}
+                                className="flex justify-between items-center bg-slate-900 px-4 py-3 rounded-xl hover:bg-slate-700 transition"
+                            >
+                                <span className="text-slate-200">
+                                    {ex.category} – ₹{ex.amount}
+                                </span>
+
                                 <button
-                                    className="delete-btn"
                                     onClick={() => handleDeleteExpense(ex._id)}
-                                    title="Delete" >
-                                    ✘
+                                    className="text-red-400 hover:text-red-500 text-lg transition"
+                                >
+                                    ✕
                                 </button>
                             </div>
                         ))}
                     </div>
-
-                    {balances.length > 0 && (
-                        <div className="balances">
-                            <h4 className="balance-title">Who owes whom</h4>
-                            {balances.map((b, i) => (
-                                <div key={i} className="answer">
-                                    {b.from} owes {b.to} ₹{b.amount}
-                                </div>
-                            ))}
-                        </div>
-                    )}
                 </>
             )}
         </div>
     );
 }
 
-export default GroupPieChart
+export default GroupPieChart;

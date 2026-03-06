@@ -1,27 +1,120 @@
 const Expense = require('../models/expenses');
 const Group = require('../models/groups');
-const User = require('../models/user');
 const Activity = require('../models/activity');
-// Add an expense
-exports.addExpense = async (req, res) => {
-    const { groupId, amount, category, paidBy } = req.body;
-    try {
-        const group = await Group.findById(groupId).populate('members');
-        if (!group) {
-            return res.status(404).json({ message: "Group not found" });
-        }
-        const members = group.members;
-        const share = amount / members.length;
 
-        const participants = members.map(member => ({//creates an array
-            user: member._id,
-            paid: member._id.toString() === paidBy ? amount : 0,
-            owes: share
+
+// =======================
+// ADD EXPENSE
+// =======================
+exports.addExpense = async (req, res) => {
+    const { groupId, amount, category, splitType, participants } = req.body;
+
+    try {
+        const group = await Group.findById(groupId);
+        if (!group)
+            return res.status(404).json({ message: "Group not found" });
+
+        if (!participants || !Array.isArray(participants) || participants.length === 0)
+            return res.status(400).json({ message: "Participants required" });
+
+        const totalAmount = Number(amount);
+        if (totalAmount <= 0)
+            return res.status(400).json({ message: "Amount must be greater than 0" });
+
+        const groupMemberIds = group.members.map(m => m.toString());
+
+        // 🔥 Validate participants belong to group
+        for (let p of participants) {
+            if (!groupMemberIds.includes(p.user)) {
+                return res.status(400).json({
+                    message: "Participant not in group"
+                });
+            }
+        }
+
+        // 🔥 Prevent duplicate participants
+        const uniqueUsers = new Set(participants.map(p => p.user));
+        if (uniqueUsers.size !== participants.length)
+            return res.status(400).json({
+                message: "Duplicate participants not allowed"
+            });
+
+        let formattedParticipants = participants.map(p => ({
+            user: p.user,
+            paid: Number(p.paid) || 0,
+            owes: 0
         }));
+
+        // ===============================
+        // SPLIT TYPE LOGIC
+        // ===============================
+
+        // 1️⃣ Equal Split
+        if (splitType === "equal") {
+
+            const share = Number((totalAmount / formattedParticipants.length).toFixed(2));
+
+            formattedParticipants.forEach(p => {
+                p.owes = share;
+            });
+        }
+
+        // 2️⃣ Exact Split (Multiple Payers, Equal Share)
+        else if (splitType === "exact") {
+
+            const share = Number((totalAmount / formattedParticipants.length).toFixed(2));
+
+            formattedParticipants.forEach(p => {
+                p.owes = share;
+            });
+        }
+
+        // 3️⃣ Percentage Split
+        else if (splitType === "percentage") {
+
+            const totalPercent = participants.reduce(
+                (sum, p) => sum + Number(p.percentage || 0),
+                0
+            );
+
+            if (Number(totalPercent.toFixed(2)) !== 100) {
+                return res.status(400).json({
+                    message: "Total percentage must equal 100"
+                });
+            }
+
+            formattedParticipants = formattedParticipants.map((p, index) => {
+                const percent = Number(participants[index].percentage);
+                return {
+                    ...p,
+                    owes: Number(((percent / 100) * totalAmount).toFixed(2))
+                };
+            });
+        }
+
+        else {
+            return res.status(400).json({ message: "Invalid split type" });
+        }
+
+        // 🔥 Validate total paid equals total amount
+        const totalPaid = formattedParticipants.reduce(
+            (sum, p) => sum + p.paid,
+            0
+        );
+
+        if (Number(totalPaid.toFixed(2)) !== Number(totalAmount.toFixed(2))) {
+            return res.status(400).json({
+                message: "Total paid must equal total amount"
+            });
+        }
+
         const newExpense = new Expense({
-            group: groupId, amount, category,
+            group: groupId,
+            amount: totalAmount,
+            category,
             addedBy: req.user.userId,
-            participants
+            participants: formattedParticipants,
+            splitType
         });
 
         await newExpense.save();
@@ -31,32 +124,40 @@ exports.addExpense = async (req, res) => {
             group: group._id,
             groupName: group.name,
             type: "expense_added",
-            amount
+            amount: totalAmount
         });
 
         res.status(201).json(newExpense);
+
     } catch (err) {
         console.error("Add expense error:", err);
         res.status(500).json({ error: err.message });
     }
 };
-// Delete an expense
+
+
+// =======================
+// DELETE EXPENSE
+// =======================
 exports.deleteExpense = async (req, res) => {
     const expenseId = req.params.id;
 
     try {
         const expense = await Expense.findById(expenseId);
-        if (!expense) {
+
+        if (!expense)
             return res.status(404).json({ message: 'Expense not found' });
-        }
-        if (expense.addedBy.toString() !== req.user.userId) {
-            return res.status(403).json({ message: 'Only the creator can delete this expense' });
-        }
+
+        if (expense.addedBy.toString() !== req.user.userId)
+            return res.status(403).json({
+                message: 'Only the creator can delete this expense'
+            });
 
         const group = await Group.findById(expense.group);
+
         await expense.deleteOne();
 
-        await Activity.create({//inserts a new document into that collection.
+        await Activity.create({
             user: req.user.userId,
             group: expense.group,
             groupName: group?.name || "Unknown Group",
@@ -65,18 +166,28 @@ exports.deleteExpense = async (req, res) => {
         });
 
         res.status(200).json({ message: "Expense deleted successfully" });
+
     } catch (err) {
         console.error("Delete expense error:", err);
         res.status(500).json({ error: err.message });
     }
 };
-// Get all expenses for a group
+
+
+
+// =======================
+// GET GROUP EXPENSES
+// =======================
 exports.getGroupExpenses = async (req, res) => {
     const { groupId } = req.params;
+
     try {
-        //in  sorted order from newest to oldest by date.
-        const expenses = await Expense.find({ group: groupId }).sort({ date: -1 });
+        const expenses = await Expense
+            .find({ group: groupId })
+            .sort({ date: -1 });
+
         res.json({ expenses });
+
     } catch (err) {
         res.status(500).json({ error: "Failed to get expenses" });
     }

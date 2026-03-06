@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/account.css";
 
 function Account() {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
@@ -13,15 +13,17 @@ function Account() {
                         Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 });
+
                 if (!res.ok) throw new Error("Failed to fetch");
 
                 const data = await res.json();
                 setUser(data);
             } catch (err) {
                 console.error("Failed to fetch profile:", err);
-                setUser({ username: "Error", email: "" });
+                setUser({ username: "Error", email: "", profilePic: "" });
             }
         };
+
         fetchProfile();
     }, []);
 
@@ -30,35 +32,112 @@ function Account() {
         localStorage.removeItem("username");
         navigate("/");
     };
+
     if (!user) {
-        return <div className="account-container"><p>Loading...</p></div>;
+        return (
+            <div className="account-container">
+                <p>Loading...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="account-container">
-            <h2 className="account-title">Account</h2>
-            <div className="sub-title" onClick={() => navigate("/dashboard/profile")}>
-                <div>
-                    <h3>{user.username}</h3>
-                    <p>{user.email}</p>
+        <div className="max-w-3xl mx-auto text-slate-200 space-y-8">
+
+            {/* Title */}
+            <div>
+                <h2 className="text-xl font-semibold text-green-300">
+                    Account
+                </h2>
+            </div>
+
+            {/* Profile Card */}
+            <div
+                onClick={() => navigate("/dashboard/profile")}
+                className="bg-slate-800/60 border border-green-900/30 rounded-2xl p-6 flex items-center justify-between cursor-pointer hover:border-green-500/40 transition"
+            >
+                <div className="flex items-center gap-4">
+                    <img
+                        src={
+                            user.profilePic
+                                ? `http://localhost:5000${user.profilePic}`
+                                : "https://via.placeholder.com/60"
+                        }
+                        alt="Avatar"
+                        className="w-14 h-14 rounded-full object-cover border border-green-400/30"
+                    />
+
+                    <div>
+                        <h3 className="text-base font-medium text-slate-200">
+                            {user.username}
+                        </h3>
+                        <p className="text-sm text-slate-400">
+                            {user.email}
+                        </p>
+                    </div>
                 </div>
-                <span className="edit">Edit</span>
-            </div>
-            <div className="sub-title" onClick={() => navigate("/dashboard/scan")}>
-                Scan Code
-            </div>
-            <div className="sub-title">Splitwise Pro</div>
 
-            <h4 className="section-title">Preferences</h4>
-            <div className="sub-title">Email Settings</div>
-            <div className="sub-title">Device and Push Notification Settings</div>
-            <div className="sub-title">Security</div>
+                <span className="text-sm text-green-300">
+                    Edit →
+                </span>
+            </div>
 
-            <h4 className="section-title">Feedback</h4>
-            <div className="sub-title">Rate BillSplit</div>
-            <div className="sub-title">Contact Support</div>
-            <div className="logout" onClick={handleLogout}>Logout</div>
+            {/* Account Options */}
+            <div className="bg-slate-800/60 border border-green-900/30 rounded-2xl divide-y divide-slate-700">
+
+                <div
+                    onClick={() => navigate("/dashboard/scan")}
+                    className="px-6 py-4 text-sm hover:bg-slate-800 transition cursor-pointer"
+                >
+                    Scan Code
+                </div>
+
+                <div className="px-6 py-4 text-sm hover:bg-slate-800 transition cursor-pointer">
+                    Splitwise Pro
+                </div>
+            </div>
+
+            {/* Preferences */}
+            <div>
+                <h4 className="text-sm text-slate-400 mb-3">Preferences</h4>
+                <div className="bg-slate-800/60 border border-green-900/30 rounded-2xl divide-y divide-slate-700">
+                    <div className="px-6 py-4 text-sm hover:bg-slate-800 transition cursor-pointer">
+                        Email Settings
+                    </div>
+                    <div className="px-6 py-4 text-sm hover:bg-slate-800 transition cursor-pointer">
+                        Notifications
+                    </div>
+                    <div className="px-6 py-4 text-sm hover:bg-slate-800 transition cursor-pointer">
+                        Security
+                    </div>
+                </div>
+            </div>
+
+            {/* Feedback */}
+            <div>
+                <h4 className="text-sm text-slate-400 mb-3">Feedback</h4>
+                <div className="bg-slate-800/60 border border-green-900/30 rounded-2xl divide-y divide-slate-700">
+                    <div className="px-6 py-4 text-sm hover:bg-slate-800 transition cursor-pointer">
+                        Rate BillSplit
+                    </div>
+                    <div className="px-6 py-4 text-sm hover:bg-slate-800 transition cursor-pointer">
+                        Contact Support
+                    </div>
+                </div>
+            </div>
+
+            {/* Logout */}
+            <div>
+                <button
+                    onClick={handleLogout}
+                    className="w-full py-3 rounded-xl border border-red-400/40 text-red-400 text-sm hover:bg-red-500/20 transition"
+                >
+                    Logout
+                </button>
+            </div>
+
         </div>
     );
 }
-export default Account
+
+export default Account;

@@ -1,7 +1,6 @@
 // Groups.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/groups.css";
 
 function Groups() {
     const navigate = useNavigate();
@@ -51,42 +50,77 @@ function Groups() {
         }
     };
 
-
+    
 
     return (
-        <div className="groups-page">
-            <div className="header">
-                <h2 className="welcome-msg">Welcome, {username}</h2>
-                <button className="create-group-btn" onClick={() => navigate("/dashboard/groups/create")}>
-                    Create New Group +
+        <div className="text-slate-200">
+
+            {/* Top Section */}
+            <div className="flex items-center justify-between mb-10">
+                <div>
+                    <h2 className="text-2xl font-semibold text-green-300">
+                        Welcome, {username}
+                    </h2>
+                    <p className="text-slate-400 text-sm mt-1">
+                        Manage your shared expenses
+                    </p>
+                </div>
+
+                <button
+                    onClick={() => navigate("/dashboard/groups/create")}
+                    className="px-5 py-2 rounded-lg bg-green-500/20 border border-green-400/40 text-green-300 text-sm font-medium hover:bg-green-500/30 transition duration-200"
+                >
+                    + Create Group
                 </button>
             </div>
-            <h2 className="heading">Your Groups</h2>
-            {
-                groups?.length > 0 ? (
-                    groups.map((group) => (
-                        <div className="group-item" key={group._id}>
-                            <span className="group-name">{group.name}</span>
-                            <div className="btns">
+
+            {/* Section Title */}
+            <h3 className="text-lg font-semibold text-slate-300 mb-6">
+                Your Groups
+            </h3>
+
+            {/* Groups List */}
+            {groups?.length > 0 ? (
+                <div className="space-y-4">
+                    {groups.map((group) => (
+                        <div
+                            key={group._id}
+                            className="flex items-center justify-between bg-slate-800/60 border border-green-900/30 rounded-xl px-6 py-4 hover:border-green-500/40 transition duration-200"
+                        >
+                            {/* Group Name */}
+                            <span className="text-base font-medium text-slate-200">
+                                {group.name}
+                            </span>
+
+                            {/* Buttons */}
+                            <div className="flex items-center gap-3">
+
                                 <button
-                                    className="view-btn"
-                                    onClick={() => navigate(`/group/${group._id}`)}>
-                                    View</button>
+                                    onClick={() => navigate(`/group/${group._id}`)}
+                                    className="px-4 py-1.5 text-sm rounded-md bg-green-500/15 text-green-300 border border-green-400/30 hover:bg-green-500/25 transition duration-200"
+                                >
+                                    View
+                                </button>
 
                                 {group.createdBy === myId && (
-                                    <button className="delete-btn" onClick={() => handleDelete(group._id)}>
+                                    <button
+                                        onClick={() => handleDelete(group._id)}
+                                        className="px-4 py-1.5 text-sm rounded-md bg-red-500/15 text-red-300 border border-red-400/30 hover:bg-red-500/25 transition duration-200"
+                                    >
                                         Delete
                                     </button>
                                 )}
+
                             </div>
                         </div>
-
-                    ))
-                ) : (
-                    <p>You have no groups yet.</p>
-                )
-            }
-        </div >
+                    ))}
+                </div>
+            ) : (
+                <div className="mt-10 text-center text-slate-400 text-sm">
+                    You don't have any groups yet.
+                </div>
+            )}
+        </div>
     );
 }
 export default Groups

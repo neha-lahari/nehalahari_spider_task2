@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "../styles/activity.css";
 
 function Activity() {
     const [activities, setActivities] = useState([]);
@@ -61,24 +60,51 @@ function Activity() {
         }
     };
     return (
-        <div className="activity">
-            <h2>Recent Activity</h2>
-            {activities.length === 0 && <p>No activity yet.</p>}
-            {activities.length > 0 && (
-                <ul className="activities">
+        <div className="max-w-3xl mx-auto text-slate-200">
+
+            {/* Title */}
+            <div className="mb-8">
+                <h2 className="text-xl font-semibold text-green-300">
+                    Recent Activity
+                </h2>
+                <p className="text-sm text-slate-400 mt-1">
+                    See what’s happening in your groups
+                </p>
+            </div>
+
+            {activities.length === 0 ? (
+                <div className="text-slate-400 text-sm">
+                    No activity yet.
+                </div>
+            ) : (
+                <div className="space-y-4">
                     {activities.map((activity) => {
-                        const isMyActivity = activity.user?.username === localStorage.getItem("username");
+                        const isMyActivity =
+                            activity.user?.username === localStorage.getItem("username");
 
                         return (
-                            <li key={activity._id}>
-                                <div>{getMessage(activity)}</div>
+                            <div
+                                key={activity._id}
+                                className="flex items-center justify-between bg-slate-800/60 border border-green-900/30 rounded-xl px-5 py-4 hover:border-green-500/40 transition duration-200"
+                            >
+                                {/* Message */}
+                                <div className="text-sm text-slate-300">
+                                    {getMessage(activity)}
+                                </div>
+
+                                {/* Delete Button (only yours) */}
                                 {isMyActivity && (
-                                    <button onClick={() => handleDelete(activity._id)}>✘</button>
+                                    <button
+                                        onClick={() => handleDelete(activity._id)}
+                                        className="text-xs text-red-400 hover:text-red-300 transition"
+                                    >
+                                        Delete
+                                    </button>
                                 )}
-                            </li>
+                            </div>
                         );
                     })}
-                </ul>
+                </div>
             )}
         </div>
     );

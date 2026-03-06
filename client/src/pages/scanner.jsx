@@ -3,13 +3,30 @@ import { QRCodeSVG } from "qrcode.react";
 
 function ScanQR() {
     return (
-        <div style={{ padding: "30px", color: "#00ff99", background: "#23272A", height: "100vh" }}>
-            <h2>Login QR Code</h2>
-            <p>Scan this QR code to open the login page</p>
-            <div style={{ padding: "16px", background: "#fff", display: "inline-block" }}>
-                <QRCodeSVG value="http://localhost:3000/" size={256} />
+        <div className="max-w-3xl mx-auto text-slate-200">
+
+            {/* Title */}
+            <div className="mb-8">
+                <h2 className="text-xl font-semibold text-green-300">
+                    Login QR Code
+                </h2>
+                <p className="text-sm text-slate-400 mt-1">
+                    Scan this QR code to open the login page
+                </p>
             </div>
+
+            {/* QR Card */}
+            <div className="bg-slate-800/60 border border-green-900/30 rounded-2xl p-10 flex justify-center">
+                <div className="bg-white p-6 rounded-xl shadow-lg">
+                    <QRCodeSVG
+                        value="http://localhost:3000/"
+                        size={220}
+                    />
+                </div>
+            </div>
+
         </div>
     );
 }
-export default ScanQR
+
+export default ScanQR;
